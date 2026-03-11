@@ -1,0 +1,26 @@
+# C# build output
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Runtime database (created on first run, per-user)
+voice_profiles.db
+
+# Development audio backups (not needed by end users)
+Assets/voice_backups/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -93,22 +93,22 @@
         <Storyboard x:Key="SB_Emblem_Active" RepeatBehavior="Forever">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetName="EmblemScale" Storyboard.TargetProperty="ScaleX" RepeatBehavior="Forever">
                 <EasingDoubleKeyFrame KeyTime="0:0:0.00" Value="1.00"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.38" Value="1.05"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.65" Value="1.04"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:1.05" Value="1.06"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:1.40" Value="1.00"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.28" Value="1.11"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.50" Value="1.09"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.72" Value="1.13"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:1.00" Value="1.00"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetName="EmblemScale" Storyboard.TargetProperty="ScaleY" RepeatBehavior="Forever">
                 <EasingDoubleKeyFrame KeyTime="0:0:0.00" Value="1.00"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.38" Value="1.05"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.65" Value="1.04"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:1.05" Value="1.06"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:1.40" Value="1.00"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.28" Value="1.11"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.50" Value="1.09"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.72" Value="1.13"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:1.00" Value="1.00"><EasingDoubleKeyFrame.EasingFunction><SineEase EasingMode="EaseInOut"/></EasingDoubleKeyFrame.EasingFunction></EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimation Storyboard.TargetName="EmblemGlow" Storyboard.TargetProperty="Opacity"
-                             From="0.0" To="0.45" Duration="0:0:0.40" AutoReverse="True" RepeatBehavior="Forever"/>
+                             From="0.15" To="0.70" Duration="0:0:0.30" AutoReverse="True" RepeatBehavior="Forever"/>
             <DoubleAnimation Storyboard.TargetName="EmblemGlow" Storyboard.TargetProperty="BlurRadius"
-                             From="0" To="25" Duration="0:0:0.40" AutoReverse="True" RepeatBehavior="Forever"/>
+                             From="8" To="38" Duration="0:0:0.30" AutoReverse="True" RepeatBehavior="Forever"/>
         </Storyboard>
 
         <!-- PROCESSING -->
@@ -1179,7 +1179,7 @@
 
                                             <!-- hex-star emblem (LISTENING / COMMAND_LISTENING only) -->
                                             <Image x:Name="CenterEmblem"
-                                                   Width="200" Height="200"
+                                                   Width="248" Height="248"
                                                    Source="pack://application:,,,/Assets/emblem.png"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
@@ -1710,7 +1710,7 @@
                                    FontSize="15"
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource TextPrimary}"/>
-                                                        <TextBlock Text="Play a greeting sound when the computer starts."
+                                                        <TextBlock Text="Play a greeting sound when Aidy starts."
                                    FontSize="12"
                                    Opacity="0.82"
                                    Foreground="{StaticResource TextMuted}"

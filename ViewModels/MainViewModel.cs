@@ -26,7 +26,7 @@ namespace WpfApp1.ViewModels
         private bool _voiceIdEnabled;
         private string _selectedMicrophoneDevice = string.Empty;
         private string _selectedOutputDevice = string.Empty;
-        private bool _greetingOnStartupEnabled;
+        private bool _greetingOnStartupEnabled = true;
         private string _appDirPath = string.Empty;
         private string _aidiFilePath = string.Empty;
         private string _aidiFileStatus = "No file selected";

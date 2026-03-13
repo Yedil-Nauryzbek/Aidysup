@@ -26,14 +26,12 @@ namespace WpfApp1.Services
                 return IsEnabled();
             }
 
-            if (TrySetRegistryEntry(exePath))
-            {
-                // Registry is preferred. Remove fallback shortcut if it exists.
-                TryDeleteStartupShortcut();
-                return true;
-            }
-
-            return TryCreateStartupShortcut(exePath) || IsEnabled();
+            // Use BOTH startup-folder shortcut and registry Run key so that at least
+            // one method fires even if the other is blocked (e.g. OneDrive path not
+            // yet mounted when the Run key fires, or registry blocked by policy).
+            var shortcutOk  = TryCreateStartupShortcut(exePath);
+            var registryOk  = TrySetRegistryEntry(exePath);
+            return shortcutOk || registryOk || IsEnabled();
         }
 
         public static bool Disable()

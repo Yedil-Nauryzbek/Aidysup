@@ -21,7 +21,7 @@ namespace WpfApp1.Models
 
     public sealed class StartupConfig
     {
-        public bool GreetingEnabled { get; set; }
+        public bool GreetingEnabled { get; set; } = true;
     }
 
     public sealed class AidiConfig

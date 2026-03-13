@@ -205,16 +205,21 @@ namespace WpfApp1.Views
             Loaded += (_, __) =>
             {
                 // --- ЗАПУСК ЗАСТАВКИ ---
-                var videoPath = Path.Combine(baseDir, "Assets", "SplashOverlay.mp4");
-                if (File.Exists(videoPath))
+                if (_vm.GreetingOnStartupEnabled)
                 {
-                    SplashVideo.Source = new Uri(videoPath, UriKind.Absolute);
-                    SplashVideo.Play();
+                    var videoPath = Path.Combine(baseDir, "Assets", "SplashOverlay.mp4");
+                    if (File.Exists(videoPath))
+                    {
+                        SplashVideo.Source = new Uri(videoPath, UriKind.Absolute);
+                        SplashVideo.Play();
+                    }
+                    else
+                    {
+                        SplashOverlay.Visibility = Visibility.Collapsed;
+                    }
                 }
                 else
                 {
-                    // ВЫВОДИМ ОШИБКУ:
-                    MessageBox.Show($"Видео не найдено!\nПуть, где искала программа:\n{videoPath}", "Ошибка заставки");
                     SplashOverlay.Visibility = Visibility.Collapsed;
                 }
                 // -----------------------
@@ -524,6 +529,14 @@ namespace WpfApp1.Views
 
         private void BrowseAidiFile_Click(object sender, RoutedEventArgs e)
         {
+            string? initialDir = null;
+            if (!string.IsNullOrWhiteSpace(_vm.AidiFilePath))
+            {
+                var existing = Path.GetDirectoryName(_vm.AidiFilePath);
+                if (!string.IsNullOrEmpty(existing) && Directory.Exists(existing))
+                    initialDir = existing;
+            }
+
             var dialog = new OpenFileDialog
             {
                 Title = "Select AIDI File",
@@ -531,7 +544,8 @@ namespace WpfApp1.Views
                 CheckPathExists = true,
                 DereferenceLinks = true,
                 Multiselect = false,
-                Filter = "All files (*.*)|*.*"
+                Filter = "All files (*.*)|*.*",
+                InitialDirectory = initialDir ?? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
             };
 
             if (dialog.ShowDialog(this) == true)

@@ -3,8 +3,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Choose Action"
-        Height="520"
-        SizeToContent="Width"
+        SizeToContent="WidthAndHeight"
         MinWidth="197"
         WindowStyle="None"
         ResizeMode="NoResize"
@@ -113,10 +112,14 @@
             <Border Grid.Row="0" Height="1" Background="#111E2E" VerticalAlignment="Bottom"/>
 
             <!-- ── CASCADING PANELS ── -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="1" Orientation="Horizontal"
+                        VerticalAlignment="Top"
+                        MouseLeave="Panels_MouseLeave">
 
                 <!-- Level 1 (always visible) -->
-                <ScrollViewer Width="185" Style="{StaticResource PanelScrollViewer}"
+                <ScrollViewer Width="185" MaxHeight="460"
+                              VerticalAlignment="Top"
+                              Style="{StaticResource PanelScrollViewer}"
                               VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled">
                     <StackPanel x:Name="Level1Panel" Margin="6,6,4,8"/>
@@ -124,10 +127,12 @@
 
                 <!-- Separator L1→L2 -->
                 <Border x:Name="Sep12" Width="1" Background="#111E2E"
-                        Margin="0,10" Visibility="Collapsed"/>
+                        VerticalAlignment="Stretch" Margin="0,8"
+                        Visibility="Collapsed"/>
 
                 <!-- Level 2 -->
-                <ScrollViewer x:Name="Level2Scroll" Width="185"
+                <ScrollViewer x:Name="Level2Scroll" Width="185" MaxHeight="460"
+                              VerticalAlignment="Top"
                               Style="{StaticResource PanelScrollViewer}"
                               VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
@@ -137,10 +142,12 @@
 
                 <!-- Separator L2→L3 -->
                 <Border x:Name="Sep23" Width="1" Background="#111E2E"
-                        Margin="0,10" Visibility="Collapsed"/>
+                        VerticalAlignment="Stretch" Margin="0,8"
+                        Visibility="Collapsed"/>
 
                 <!-- Level 3 -->
-                <ScrollViewer x:Name="Level3Scroll" Width="185"
+                <ScrollViewer x:Name="Level3Scroll" Width="185" MaxHeight="460"
+                              VerticalAlignment="Top"
                               Style="{StaticResource PanelScrollViewer}"
                               VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"

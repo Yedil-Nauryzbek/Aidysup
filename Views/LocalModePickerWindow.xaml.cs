@@ -298,6 +298,16 @@ namespace WpfApp1.Views
 
         // ── Window controls ────────────────────────────────────────────────────
 
+        private void Panels_MouseLeave(object sender, MouseEventArgs e)
+        {
+            // Collapse L2 and L3 when cursor exits all panels
+            Sep12.Visibility = Level2Scroll.Visibility = Visibility.Collapsed;
+            Sep23.Visibility = Level3Scroll.Visibility = Visibility.Collapsed;
+
+            if (_active1 != null) { _active1.Background = TransBrush; _active1 = null; }
+            if (_active2 != null) { _active2.Background = TransBrush; _active2 = null; }
+        }
+
         private void CloseBtn_Click(object sender, RoutedEventArgs e) => DialogResult = false;
 
         private void Header_MouseDown(object sender, MouseButtonEventArgs e)

@@ -27,6 +27,7 @@ namespace WpfApp1.ViewModels
         private string _selectedMicrophoneDevice = string.Empty;
         private string _selectedOutputDevice = string.Empty;
         private bool _greetingOnStartupEnabled = true;
+        private bool _localModeEnabled;
         private string _appDirPath = string.Empty;
         private string _aidiFilePath = string.Empty;
         private string _aidiFileStatus = "No file selected";
@@ -171,6 +172,24 @@ namespace WpfApp1.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        public bool LocalModeEnabled
+        {
+            get => _localModeEnabled;
+            set
+            {
+                if (_localModeEnabled == value) return;
+                _localModeEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<LocalModeSlotViewModel> LocalModeSlots { get; } = new()
+        {
+            new LocalModeSlotViewModel(0),
+            new LocalModeSlotViewModel(1),
+            new LocalModeSlotViewModel(2),
+        };
 
         public string AidiFilePath
         {

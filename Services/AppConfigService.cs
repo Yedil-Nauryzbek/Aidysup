@@ -32,6 +32,7 @@ namespace WpfApp1.Services
                     var audioNode = root["audio"] as JsonObject;
                     var startupNode = root["startup"] as JsonObject;
                     var aidiNode = root["aidi"] as JsonObject;
+                    var localModeNode = root["local_mode"] as JsonObject;
 
                     var config = new AppConfig
                     {
@@ -53,6 +54,11 @@ namespace WpfApp1.Services
                         {
                             FilePath = NormalizeAbsolutePath(ReadString(aidiNode, "file_path")),
                             Volume = NormalizeVolume(ReadInt(aidiNode, "volume", AppConfig.DefaultAidiVolume)),
+                        },
+                        LocalMode = new LocalModeConfig
+                        {
+                            Enabled = ReadBool(localModeNode, "enabled"),
+                            Slots = ReadLocalModeSlots(localModeNode),
                         },
                     };
 
@@ -92,6 +98,20 @@ namespace WpfApp1.Services
                 startup["greeting_enabled"] = config.Startup?.GreetingEnabled ?? false;
                 aidi["file_path"] = aidiFilePath;
                 aidi["volume"] = aidiVolume;
+
+                var localMode = EnsureObject(root, "local_mode");
+                localMode["enabled"] = config.LocalMode?.Enabled ?? false;
+                var slotsArr = new JsonArray();
+                foreach (var slot in config.LocalMode?.Slots ?? Array.Empty<LocalModeSlot>())
+                {
+                    slotsArr.Add(new JsonObject
+                    {
+                        ["action_type"] = slot.ActionType,
+                        ["target"] = slot.Target,
+                        ["display_name"] = slot.DisplayName,
+                    });
+                }
+                localMode["slots"] = slotsArr;
 
                 var dir = Path.GetDirectoryName(_configPath);
                 if (!string.IsNullOrWhiteSpace(dir))
@@ -182,6 +202,25 @@ namespace WpfApp1.Services
             {
                 return fallback;
             }
+        }
+
+        private static LocalModeSlot[] ReadLocalModeSlots(JsonObject? node)
+        {
+            var result = new[] { new LocalModeSlot(), new LocalModeSlot(), new LocalModeSlot() };
+            if (node?["slots"] is not JsonArray arr) return result;
+            for (int i = 0; i < Math.Min(arr.Count, result.Length); i++)
+            {
+                if (arr[i] is JsonObject s)
+                {
+                    result[i] = new LocalModeSlot
+                    {
+                        ActionType = ReadString(s, "action_type"),
+                        Target = ReadString(s, "target"),
+                        DisplayName = ReadString(s, "display_name"),
+                    };
+                }
+            }
+            return result;
         }
 
         private static int NormalizeVolume(int value)

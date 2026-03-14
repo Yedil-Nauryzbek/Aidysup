@@ -1819,6 +1819,200 @@
                                                 </Grid>
                                             </Border>
 
+                                            <!-- ═══════════════ LOCAL MODE ═══════════════ -->
+                                            <TextBlock Text="Local Mode"
+                                                       FontSize="16"
+                                                       FontWeight="SemiBold"
+                                                       Opacity="0.9"
+                                                       Foreground="{StaticResource TextMuted}"
+                                                       Margin="0,0,0,14"/>
+
+                                            <Border CornerRadius="16"
+                                                    Background="#141A2B"
+                                                    BorderBrush="#2AFFFFFF"
+                                                    BorderThickness="1"
+                                                    Padding="18"
+                                                    Margin="0,0,0,18">
+                                                <StackPanel>
+
+                                                    <!-- Master toggle row -->
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel>
+                                                            <TextBlock Text="Local Mode"
+                                                                       FontSize="17" FontWeight="SemiBold"
+                                                                       Foreground="{StaticResource TextPrimary}"/>
+                                                            <TextBlock Text="Assign 3 instant-action slots, no voice required."
+                                                                       FontSize="13" Opacity="0.82"
+                                                                       Foreground="{StaticResource TextMuted}"
+                                                                       Margin="0,4,0,0"/>
+                                                        </StackPanel>
+                                                        <ToggleButton Grid.Column="1"
+                                                                      Style="{StaticResource SettingsToggleStyle}"
+                                                                      Margin="14,0,0,0"
+                                                                      IsChecked="{Binding LocalModeEnabled, Mode=TwoWay}"/>
+                                                    </Grid>
+
+                                                    <!-- Slots panel (only when Local Mode is ON) -->
+                                                    <StackPanel>
+                                                        <StackPanel.Style>
+                                                            <Style TargetType="StackPanel">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding LocalModeEnabled}" Value="True">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </StackPanel.Style>
+
+                                                        <Border Height="1" Background="#22FFFFFF" Margin="0,14,0,14"/>
+
+                                                        <TextBlock Text="Quick Action Slots"
+                                                                   FontSize="13" Opacity="0.9"
+                                                                   Foreground="{StaticResource TextMuted}"
+                                                                   Margin="0,0,0,10"/>
+
+                                                        <ItemsControl ItemsSource="{Binding LocalModeSlots}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border Margin="0,0,0,8" CornerRadius="12" Padding="14,11">
+                                                                        <Border.Style>
+                                                                            <Style TargetType="Border">
+                                                                                <Setter Property="Background" Value="#0DFFFFFF"/>
+                                                                                <Setter Property="BorderThickness" Value="1"/>
+                                                                                <Setter Property="BorderBrush" Value="#22FFFFFF"/>
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding IsEmpty}" Value="False">
+                                                                                        <Setter Property="BorderBrush" Value="#4057F287"/>
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </Border.Style>
+                                                                        <Grid>
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="Auto"/>
+                                                                                <ColumnDefinition Width="*"/>
+                                                                                <ColumnDefinition Width="Auto"/>
+                                                                            </Grid.ColumnDefinitions>
+
+                                                                            <!-- Slot badge -->
+                                                                            <Border Grid.Column="0" Width="26" Height="26"
+                                                                                    CornerRadius="7" Background="#1B2740"
+                                                                                    BorderBrush="#2D3A5D" BorderThickness="1"
+                                                                                    Margin="0,0,12,0" VerticalAlignment="Center">
+                                                                                <TextBlock Text="{Binding SlotNumber}"
+                                                                                           HorizontalAlignment="Center"
+                                                                                           VerticalAlignment="Center"
+                                                                                           FontSize="11" FontWeight="SemiBold"
+                                                                                           Foreground="#7A8BA8"/>
+                                                                            </Border>
+
+                                                                            <!-- Slot assign button -->
+                                                                            <Button Grid.Column="1"
+                                                                                    Tag="{Binding Index}"
+                                                                                    Click="LocalModeSlot_Click"
+                                                                                    Background="Transparent"
+                                                                                    BorderThickness="0"
+                                                                                    HorizontalAlignment="Stretch"
+                                                                                    HorizontalContentAlignment="Left"
+                                                                                    Cursor="Hand" Padding="0"
+                                                                                    FocusVisualStyle="{x:Null}">
+                                                                                <Button.Template>
+                                                                                    <ControlTemplate TargetType="Button">
+                                                                                        <ContentPresenter/>
+                                                                                    </ControlTemplate>
+                                                                                </Button.Template>
+                                                                                <StackPanel VerticalAlignment="Center">
+                                                                                    <!-- Empty -->
+                                                                                    <TextBlock Text="Click to assign action..."
+                                                                                               FontSize="13" FontStyle="Italic"
+                                                                                               Foreground="#3A4A5E">
+                                                                                        <TextBlock.Style>
+                                                                                            <Style TargetType="TextBlock">
+                                                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                                                <Style.Triggers>
+                                                                                                    <DataTrigger Binding="{Binding IsEmpty}" Value="False">
+                                                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                                    </DataTrigger>
+                                                                                                </Style.Triggers>
+                                                                                            </Style>
+                                                                                        </TextBlock.Style>
+                                                                                    </TextBlock>
+                                                                                    <!-- Filled -->
+                                                                                    <StackPanel>
+                                                                                        <StackPanel.Style>
+                                                                                            <Style TargetType="StackPanel">
+                                                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                                <Style.Triggers>
+                                                                                                    <DataTrigger Binding="{Binding IsEmpty}" Value="False">
+                                                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                                                    </DataTrigger>
+                                                                                                </Style.Triggers>
+                                                                                            </Style>
+                                                                                        </StackPanel.Style>
+                                                                                        <TextBlock Text="{Binding DisplayName}"
+                                                                                                   FontSize="13" FontWeight="SemiBold"
+                                                                                                   Foreground="{StaticResource TextPrimary}"/>
+                                                                                        <TextBlock Text="{Binding ActionTypeDisplay}"
+                                                                                                   FontSize="11" Foreground="#57F287"
+                                                                                                   Margin="0,2,0,0"/>
+                                                                                    </StackPanel>
+                                                                                </StackPanel>
+                                                                            </Button>
+
+                                                                            <!-- Clear button (visible when filled) -->
+                                                                            <Button Grid.Column="2"
+                                                                                    Tag="{Binding Index}"
+                                                                                    Click="LocalModeSlotClear_Click"
+                                                                                    Content="✕"
+                                                                                    Width="22" Height="22"
+                                                                                    VerticalAlignment="Center"
+                                                                                    Margin="8,0,0,0"
+                                                                                    Cursor="Hand"
+                                                                                    FocusVisualStyle="{x:Null}">
+                                                                                <Button.Template>
+                                                                                    <ControlTemplate TargetType="Button">
+                                                                                        <Border x:Name="Bd" CornerRadius="5" Width="22" Height="22"
+                                                                                                Background="Transparent">
+                                                                                            <TextBlock Text="{TemplateBinding Content}"
+                                                                                                       FontSize="11" Foreground="#4A5A7A"
+                                                                                                       HorizontalAlignment="Center"
+                                                                                                       VerticalAlignment="Center"/>
+                                                                                        </Border>
+                                                                                        <ControlTemplate.Triggers>
+                                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                                <Setter TargetName="Bd" Property="Background" Value="#1A2740"/>
+                                                                                            </Trigger>
+                                                                                        </ControlTemplate.Triggers>
+                                                                                    </ControlTemplate>
+                                                                                </Button.Template>
+                                                                                <Button.Style>
+                                                                                    <Style TargetType="Button">
+                                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                        <Style.Triggers>
+                                                                                            <DataTrigger Binding="{Binding IsEmpty}" Value="False">
+                                                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                                            </DataTrigger>
+                                                                                        </Style.Triggers>
+                                                                                    </Style>
+                                                                                </Button.Style>
+                                                                            </Button>
+
+                                                                        </Grid>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Border>
+                                            <!-- ══════════════════════════════════════════ -->
+
                                             <TextBlock Text="Voice"
                        FontSize="16"
                        FontWeight="SemiBold"

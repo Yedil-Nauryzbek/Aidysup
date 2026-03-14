@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Controls;
@@ -150,6 +151,10 @@ namespace WpfApp1.Views
                 : appConfig.Aidi.FilePath;
             _vm.AidiVolume = appConfig.Aidi.Volume;
             _vm.VoiceIdEnabled = appConfig.VoiceIdEnabled;
+            _vm.LocalModeEnabled = appConfig.LocalMode.Enabled;
+            var savedSlots = appConfig.LocalMode.Slots;
+            for (int i = 0; i < Math.Min(savedSlots.Length, _vm.LocalModeSlots.Count); i++)
+                _vm.LocalModeSlots[i].Apply(savedSlots[i]);
 
             appConfig.AutoStartEnabled = syncedAutoStartEnabled;
             appConfig.Audio.Microphone = _vm.SelectedMicrophoneDevice;
@@ -444,6 +449,12 @@ namespace WpfApp1.Views
                 return;
             }
 
+            if (e.PropertyName == nameof(MainViewModel.LocalModeEnabled))
+            {
+                SaveCurrentConfig();
+                return;
+            }
+
             if (e.PropertyName == nameof(MainViewModel.SelectedMicrophoneDevice) ||
                 e.PropertyName == nameof(MainViewModel.SelectedOutputDevice) ||
                 e.PropertyName == nameof(MainViewModel.GreetingOnStartupEnabled) ||
@@ -525,6 +536,30 @@ namespace WpfApp1.Views
             }
 
             _bridge.SendControlCommand("enroll_admin");
+        }
+
+        private void LocalModeSlot_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button { Tag: int idx }) return;
+            if (idx < 0 || idx >= _vm.LocalModeSlots.Count) return;
+
+            var picker = new LocalModePickerWindow(idx) { Owner = this };
+            if (picker.ShowDialog() == true && picker.Result is { } result)
+            {
+                var slot = _vm.LocalModeSlots[idx];
+                slot.ActionType  = result.ActionType;
+                slot.Target      = result.Target;
+                slot.DisplayName = result.DisplayName;
+                SaveCurrentConfig();
+            }
+        }
+
+        private void LocalModeSlotClear_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button { Tag: int idx }) return;
+            if (idx < 0 || idx >= _vm.LocalModeSlots.Count) return;
+            _vm.LocalModeSlots[idx].Clear();
+            SaveCurrentConfig();
         }
 
         private void BrowseAidiFile_Click(object sender, RoutedEventArgs e)
@@ -709,6 +744,11 @@ namespace WpfApp1.Views
                 {
                     FilePath = normalizedAidiPath,
                     Volume = _vm.AidiVolume,
+                },
+                LocalMode = new LocalModeConfig
+                {
+                    Enabled = _vm.LocalModeEnabled,
+                    Slots   = _vm.LocalModeSlots.Select(s => s.ToModel()).ToArray(),
                 },
             });
         }

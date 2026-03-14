@@ -6,68 +6,150 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace WpfApp1.Views
 {
     public record PickerResult(string ActionType, string Target, string DisplayName);
 
-    internal sealed class PickerItem
+    internal sealed class MenuNode
     {
-        public string DisplayName { get; init; } = string.Empty;
-        public string Icon       { get; init; } = "◈";
-        public string ActionType { get; set; }  = string.Empty;
-        public string Target     { get; set; }  = string.Empty;
+        public string         Label      { get; init; } = string.Empty;
+        public string         Icon       { get; init; } = "▸";
+        public List<MenuNode>? Children  { get; init; }
+        public string?        ActionType { get; init; }
+        public string?        Target     { get; init; }
+        public bool HasChildren => Children is { Count: > 0 };
     }
 
     public partial class LocalModePickerWindow : Window
     {
         public PickerResult? Result { get; private set; }
 
-        private readonly List<PickerItem> _functions;
-        private readonly List<PickerItem> _apps;
-        private bool _openMode = true;
+        private Border? _active1;
+        private Border? _active2;
+
+        private static readonly Brush TransBrush  = Brushes.Transparent;
+        private static readonly Brush HoverBrush  = new SolidColorBrush(Color.FromRgb(0x13, 0x21, 0x37));
+        private static readonly Brush ActiveBrush = new SolidColorBrush(Color.FromRgb(0x17, 0x28, 0x42));
+
+        private static readonly Brush IconFg  = new SolidColorBrush(Color.FromRgb(0x55, 0x68, 0x88));
+        private static readonly Brush LabelFg = new SolidColorBrush(Color.FromRgb(0xCC, 0xD8, 0xFF));
+        private static readonly Brush ArrowFg = new SolidColorBrush(Color.FromRgb(0x30, 0x40, 0x60));
 
         public LocalModePickerWindow(int slotIndex = 0)
         {
             InitializeComponent();
             SlotLabel.Text = $"Slot {slotIndex + 1}";
-            _functions = BuildFunctions();
-            _apps      = DiscoverApps();
-            RefreshLists(string.Empty);
-            SearchBox.Focus();
+            PopulatePanel(Level1Panel, BuildRootMenu(), 1);
         }
 
-        // ── Data builders ────────────────────────────────────────────────────
+        // ── Menu tree ──────────────────────────────────────────────────────────
 
-        private static List<PickerItem> BuildFunctions() => new()
+        private static List<MenuNode> BuildRootMenu()
         {
-            new() { DisplayName = "Open Browser",      Icon = "🌐", ActionType = "function", Target = "open_browser" },
-            new() { DisplayName = "Open File Manager", Icon = "📁", ActionType = "function", Target = "open_file_manager" },
-            new() { DisplayName = "Open Calculator",   Icon = "🔢", ActionType = "function", Target = "open_calculator" },
-            new() { DisplayName = "Open Notepad",      Icon = "📝", ActionType = "function", Target = "open_notepad" },
-            new() { DisplayName = "Open Task Manager", Icon = "⚙️", ActionType = "function", Target = "open_task_manager" },
-            new() { DisplayName = "Show Desktop",      Icon = "🖥️", ActionType = "function", Target = "show_desktop" },
-            new() { DisplayName = "Lock Screen",       Icon = "🔒", ActionType = "function", Target = "lock_screen" },
-            new() { DisplayName = "Mute / Unmute",     Icon = "🔇", ActionType = "function", Target = "toggle_mute" },
-            new() { DisplayName = "Volume Up",         Icon = "🔊", ActionType = "function", Target = "volume_up" },
-            new() { DisplayName = "Volume Down",       Icon = "🔉", ActionType = "function", Target = "volume_down" },
-            new() { DisplayName = "Play / Pause",      Icon = "⏯",  ActionType = "function", Target = "play_pause" },
-            new() { DisplayName = "Next Track",        Icon = "⏭",  ActionType = "function", Target = "next_track" },
-            new() { DisplayName = "Take Screenshot",   Icon = "📸", ActionType = "function", Target = "screenshot" },
-            new() { DisplayName = "Open Settings",     Icon = "⚙",  ActionType = "function", Target = "open_settings" },
-        };
+            int[] vol = { 5, 10, 15, 25, 50, 75, 100 };
+            int[] tmr = { 1, 3, 5, 10, 15, 30, 45, 60 };
+            var apps = DiscoverApps();
 
-        private static List<PickerItem> DiscoverApps()
+            return new List<MenuNode>
+            {
+                new() {
+                    Label = "Apps", Icon = "◈",
+                    Children = new List<MenuNode>
+                    {
+                        new() {
+                            Label = "Open", Icon = "▷",
+                            Children = apps
+                                .Select(a => new MenuNode { Label = a.Name, Icon = "◈",
+                                    ActionType = "open_app", Target = a.Path })
+                                .ToList()
+                        },
+                        new() {
+                            Label = "Close", Icon = "▷",
+                            Children = apps
+                                .Select(a => new MenuNode { Label = a.Name, Icon = "◈",
+                                    ActionType = "close_app", Target = a.Name })
+                                .ToList()
+                        },
+                    }
+                },
+
+                new() { Label = "Restart Computer", Icon = "↺",
+                        ActionType = "function", Target = "restart_computer" },
+
+                new() { Label = "Shutdown",          Icon = "⏻",
+                        ActionType = "function", Target = "shutdown_computer" },
+
+                new() {
+                    Label = "Open Website", Icon = "🌐",
+                    Children = new List<MenuNode>
+                    {
+                        new() { Label = "WhatsApp", Icon = "💬",
+                                ActionType = "function", Target = "website_whatsapp" },
+                        new() { Label = "ChatGPT",  Icon = "🤖",
+                                ActionType = "function", Target = "website_chatgpt" },
+                        new() { Label = "YouTube",  Icon = "▶",
+                                ActionType = "function", Target = "website_youtube" },
+                    }
+                },
+
+                new() {
+                    Label = "Sound", Icon = "🔊",
+                    Children = new List<MenuNode>
+                    {
+                        new() {
+                            Label = "Decrease", Icon = "🔉",
+                            Children = vol.Select(v => new MenuNode
+                                { Label = $"{v}%", Icon = "−",
+                                  ActionType = "function", Target = $"volume_down_{v}" }).ToList()
+                        },
+                        new() {
+                            Label = "Increase", Icon = "🔊",
+                            Children = vol.Select(v => new MenuNode
+                                { Label = $"{v}%", Icon = "+",
+                                  ActionType = "function", Target = $"volume_up_{v}" }).ToList()
+                        },
+                    }
+                },
+
+                new() {
+                    Label = "Brightness", Icon = "☀",
+                    Children = new List<MenuNode>
+                    {
+                        new() {
+                            Label = "Decrease", Icon = "●",
+                            Children = vol.Select(v => new MenuNode
+                                { Label = $"{v}%", Icon = "−",
+                                  ActionType = "function", Target = $"brightness_down_{v}" }).ToList()
+                        },
+                        new() {
+                            Label = "Increase", Icon = "○",
+                            Children = vol.Select(v => new MenuNode
+                                { Label = $"{v}%", Icon = "+",
+                                  ActionType = "function", Target = $"brightness_up_{v}" }).ToList()
+                        },
+                    }
+                },
+
+                new() {
+                    Label = "Timer", Icon = "⏱",
+                    Children = tmr.Select(m => new MenuNode
+                        { Label = $"{m} min", Icon = "⏱",
+                          ActionType = "function", Target = $"timer_{m}" }).ToList()
+                },
+            };
+        }
+
+        private static List<(string Name, string Path)> DiscoverApps()
         {
-            var apps = new List<PickerItem>();
+            var apps = new List<(string Name, string Path)>();
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
             var dirs = new[]
             {
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms),
                 Environment.GetFolderPath(Environment.SpecialFolder.Programs),
             };
-
             foreach (var dir in dirs.Where(Directory.Exists))
             {
                 foreach (var lnk in Directory.GetFiles(dir, "*.lnk", SearchOption.AllDirectories))
@@ -77,84 +159,148 @@ namespace WpfApp1.Views
                     if (name.Contains("uninstall", StringComparison.OrdinalIgnoreCase) ||
                         name.Contains("update",    StringComparison.OrdinalIgnoreCase)) continue;
                     if (!seen.Add(name)) continue;
-
-                    apps.Add(new PickerItem { DisplayName = name, Icon = "◈", Target = lnk });
+                    apps.Add((name, lnk));
                 }
             }
-
-            apps.Sort((a, b) => StringComparer.OrdinalIgnoreCase.Compare(a.DisplayName, b.DisplayName));
+            apps.Sort((a, b) => StringComparer.OrdinalIgnoreCase.Compare(a.Name, b.Name));
             return apps;
         }
 
-        // ── Filtering ────────────────────────────────────────────────────────
+        // ── Panel building ─────────────────────────────────────────────────────
 
-        private void RefreshLists(string search)
+        private void PopulatePanel(StackPanel panel, IEnumerable<MenuNode> nodes, int level)
         {
-            search = search.Trim();
-            bool filtered = !string.IsNullOrEmpty(search);
-
-            var funcs = (filtered
-                ? _functions.Where(f => f.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase))
-                : (IEnumerable<PickerItem>)_functions).ToList();
-
-            FunctionsList.ItemsSource = funcs;
-            FunctionsSectionPanel.Visibility = funcs.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-
-            string actionType = _openMode ? "open_app" : "close_app";
-            var filteredApps = (filtered
-                ? _apps.Where(a => a.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase))
-                : (IEnumerable<PickerItem>)_apps)
-                .Select(a => new PickerItem { DisplayName = a.DisplayName, Icon = a.Icon,
-                                              Target = a.Target, ActionType = actionType })
-                .ToList();
-
-            AppsList.ItemsSource = filteredApps;
-            AppsSectionPanel.Visibility = filteredApps.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            panel.Children.Clear();
+            foreach (var node in nodes)
+                panel.Children.Add(CreateItem(node, level));
         }
 
-        private void Commit(PickerItem item)
+        private UIElement CreateItem(MenuNode node, int level)
         {
-            Result = new PickerResult(item.ActionType, item.Target, item.DisplayName);
+            var border = new Border
+            {
+                CornerRadius = new CornerRadius(8),
+                Padding      = new Thickness(8, 7, 8, 7),
+                Cursor       = Cursors.Hand,
+                Background   = TransBrush,
+            };
+
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(26) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var iconBlock = new TextBlock
+            {
+                Text                = node.Icon,
+                FontSize            = 13,
+                Foreground          = IconFg,
+                VerticalAlignment   = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+            };
+            Grid.SetColumn(iconBlock, 0);
+            grid.Children.Add(iconBlock);
+
+            var labelBlock = new TextBlock
+            {
+                Text              = node.Label,
+                FontSize          = 13,
+                Foreground        = LabelFg,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            Grid.SetColumn(labelBlock, 1);
+            grid.Children.Add(labelBlock);
+
+            if (node.HasChildren)
+            {
+                var arrow = new TextBlock
+                {
+                    Text              = "›",
+                    FontSize          = 18,
+                    Foreground        = ArrowFg,
+                    VerticalAlignment = VerticalAlignment.Center,
+                };
+                Grid.SetColumn(arrow, 2);
+                grid.Children.Add(arrow);
+            }
+
+            border.Child = grid;
+
+            // Hover: navigate + highlight
+            border.MouseEnter += (_, _) =>
+            {
+                if (level == 1)
+                {
+                    if (_active1 != null && _active1 != border)
+                        _active1.Background = TransBrush;
+                    _active1 = border;
+                    OnHoverL1(node);
+                }
+                else if (level == 2)
+                {
+                    if (_active2 != null && _active2 != border)
+                        _active2.Background = TransBrush;
+                    _active2 = border;
+                    OnHoverL2(node);
+                }
+                border.Background = node.HasChildren ? ActiveBrush : HoverBrush;
+            };
+
+            border.MouseLeave += (_, _) =>
+            {
+                // Keep the active branch item highlighted
+                bool keep = (level == 1 && border == _active1 && node.HasChildren) ||
+                            (level == 2 && border == _active2 && node.HasChildren);
+                if (!keep)
+                    border.Background = TransBrush;
+            };
+
+            // Click: commit leaf items
+            if (!node.HasChildren)
+                border.MouseLeftButtonUp += (_, _) => Commit(node);
+
+            return border;
+        }
+
+        // ── Navigation ─────────────────────────────────────────────────────────
+
+        private void OnHoverL1(MenuNode node)
+        {
+            if (node.HasChildren)
+            {
+                PopulatePanel(Level2Panel, node.Children!, 2);
+                Sep12.Visibility = Level2Scroll.Visibility = Visibility.Visible;
+                // collapse L3 when L1 selection changes
+                Sep23.Visibility = Level3Scroll.Visibility = Visibility.Collapsed;
+                _active2 = null;
+            }
+            else
+            {
+                Sep12.Visibility = Level2Scroll.Visibility = Visibility.Collapsed;
+                Sep23.Visibility = Level3Scroll.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void OnHoverL2(MenuNode node)
+        {
+            if (node.HasChildren)
+            {
+                PopulatePanel(Level3Panel, node.Children!, 3);
+                Sep23.Visibility = Level3Scroll.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Sep23.Visibility = Level3Scroll.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void Commit(MenuNode node)
+        {
+            Result = new PickerResult(node.ActionType!, node.Target!, node.Label);
             DialogResult = true;
         }
 
-        // ── Event handlers ───────────────────────────────────────────────────
-
-        private void List_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // Single-click confirm
-            if (sender is ListBox lb && lb.SelectedItem is PickerItem item)
-                Commit(item);
-        }
-
-        private void List_DoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is ListBox lb && lb.SelectedItem is PickerItem item)
-                Commit(item);
-        }
-
-        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            SearchPlaceholder.Visibility = string.IsNullOrEmpty(SearchBox.Text)
-                ? Visibility.Visible : Visibility.Collapsed;
-            RefreshLists(SearchBox.Text);
-        }
-
-        private void OpenTab_Click(object sender, RoutedEventArgs e)
-        {
-            _openMode = true;
-            CloseTab.IsChecked = false;
-            OpenTab.IsChecked  = true;
-            RefreshLists(SearchBox.Text);
-        }
-
-        private void CloseTab_Click(object sender, RoutedEventArgs e)
-        {
-            _openMode = false;
-            OpenTab.IsChecked  = false;
-            CloseTab.IsChecked = true;
-            RefreshLists(SearchBox.Text);
-        }
+        // ── Window controls ────────────────────────────────────────────────────
 
         private void CloseBtn_Click(object sender, RoutedEventArgs e) => DialogResult = false;
 

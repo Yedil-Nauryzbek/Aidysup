@@ -74,7 +74,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="48"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- ── HEADER ── -->
@@ -93,15 +93,17 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="Bd" CornerRadius="6" Background="Transparent"
+                                    BorderBrush="#2A3A55" BorderThickness="1"
                                     Width="28" Height="28">
                                 <TextBlock Text="{TemplateBinding Content}" FontSize="12"
-                                           Foreground="#3A4A6A"
+                                           Foreground="#4A5A7A"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="Bd" Property="Background" Value="#18253A"/>
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#3A5070"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>

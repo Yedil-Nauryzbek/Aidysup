@@ -50,7 +50,6 @@ namespace WpfApp1.Views
         {
             int[] vol = { 5, 10, 15, 25, 50, 75, 100 };
             int[] tmr = { 1, 3, 5, 10, 15, 30, 45, 60 };
-            var apps = DiscoverApps();
 
             return new List<MenuNode>
             {
@@ -60,16 +59,16 @@ namespace WpfApp1.Views
                     {
                         new() {
                             Label = "Open", Icon = "▷",
-                            Children = apps
-                                .Select(a => new MenuNode { Label = a.Name, Icon = "◈",
-                                    ActionType = "open_app", Target = a.Path })
+                            Children = KnownApps()
+                                .Select(a => new MenuNode { Label = a.Label, Icon = a.Icon,
+                                    ActionType = "open_app", Target = a.Id })
                                 .ToList()
                         },
                         new() {
                             Label = "Close", Icon = "▷",
-                            Children = apps
-                                .Select(a => new MenuNode { Label = a.Name, Icon = "◈",
-                                    ActionType = "close_app", Target = a.Name })
+                            Children = KnownApps()
+                                .Select(a => new MenuNode { Label = a.Label, Icon = a.Icon,
+                                    ActionType = "close_app", Target = a.Id })
                                 .ToList()
                         },
                     }
@@ -141,30 +140,27 @@ namespace WpfApp1.Views
             };
         }
 
-        private static List<(string Name, string Path)> DiscoverApps()
+        // Apps that Aidy actually supports, matching ids in apps.json
+        private static List<(string Label, string Icon, string Id)> KnownApps() => new()
         {
-            var apps = new List<(string Name, string Path)>();
-            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var dirs = new[]
-            {
-                Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms),
-                Environment.GetFolderPath(Environment.SpecialFolder.Programs),
-            };
-            foreach (var dir in dirs.Where(Directory.Exists))
-            {
-                foreach (var lnk in Directory.GetFiles(dir, "*.lnk", SearchOption.AllDirectories))
-                {
-                    var name = Path.GetFileNameWithoutExtension(lnk);
-                    if (string.IsNullOrWhiteSpace(name)) continue;
-                    if (name.Contains("uninstall", StringComparison.OrdinalIgnoreCase) ||
-                        name.Contains("update",    StringComparison.OrdinalIgnoreCase)) continue;
-                    if (!seen.Add(name)) continue;
-                    apps.Add((name, lnk));
-                }
-            }
-            apps.Sort((a, b) => StringComparer.OrdinalIgnoreCase.Compare(a.Name, b.Name));
-            return apps;
-        }
+            ("Chrome",          "🌐", "chrome"),
+            ("Opera",           "🔴", "opera"),
+            ("Yandex Browser",  "🟡", "yandex_browser"),
+            ("Yandex Music",    "🎵", "yandex_music"),
+            ("Telegram",        "✈",  "telegram"),
+            ("Discord",         "💬", "discord"),
+            ("Spotify",         "🎵", "spotify"),
+            ("File Explorer",   "📁", "explorer"),
+            ("Settings",        "⚙",  "settings"),
+            ("Calculator",      "🔢", "calculator"),
+            ("Notepad",         "📝", "notepad"),
+            ("Task Manager",    "⚙️", "task_manager"),
+            ("VS Code",         "💻", "vscode"),
+            ("Steam",           "🎮", "steam"),
+            ("YouTube",         "▶",  "youtube"),
+            ("ChatGPT",         "🤖", "gpt"),
+            ("WhatsApp",        "💬", "whatsapp_web"),
+        };
 
         // ── Panel building ─────────────────────────────────────────────────────
 
